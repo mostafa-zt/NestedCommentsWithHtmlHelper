@@ -1,0 +1,68 @@
+﻿@model IEnumerable<NestedCommentsWithExtensionHtmlHelper.Model.Comment>
+@helper ShowTree(IEnumerable<NestedCommentsWithExtensionHtmlHelper.Model.Comment> comments)
+{
+foreach (var item in comments)
+{
+        <div class="media">
+            <!-- parent comment -->
+            <div class="media-heading">
+                <button class="btn btn-default btn-xs" type="button" data-toggle="collapse" data-target="#comment_@item.Id" aria-expanded="false" aria-controls="collapseExample">
+                    <span class="glyphicon glyphicon-minus" aria-hidden="true">
+                    </span>
+                </button>
+                <span> @item.CreatorDateTime.ToLongDateString() </span> <span style="background-color:#e5e7f3;color:black"> @item.Alias</span>
+            </div>
+            <div class="panel-collapse collapse in" id="comment_@item.Id">
+                <div class="media-body">
+                    <p> @item.Text </p>
+                    <div class="comment-meta">
+                        <span>
+                            <a class="" role="button" data-toggle="collapse" data-target="#replyComment_@item.Id" @*data-target="replyComment_@item.Id"*@ aria-expanded="false" aria-controls="collapseExample">reply</a>
+                        </span>
+                        <div class="collapse" id="replyComment_@item.Id">
+                            @Html.Partial("_CommentCreate", new NestedCommentsWithExtensionHtmlHelper.ViewModel.CommentViewModel() { Id = item.Id })
+                        </div>
+                    </div>
+                    <!-- child comments -->
+                    @if (item.Responses.Count > 0)
+                    {
+                        @ShowTree(item.Responses.AsEnumerable())
+                    }
+                    <!-- child comments -->
+                </div>
+            </div>
+            <!-- comments -->
+        </div>
+}
+}
+
+<div class="dialogs">
+    @if (Model != null && Model.Any())
+    {
+        <div class="post-comments">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    @ShowTree(Model.AsEnumerable())
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-block alert-success">
+            <button type="button" class="close" data-dismiss="alert">
+                <i class="ace-icon fa fa-times"></i>
+            </button>
+            <p>
+                <strong>
+                    <i class="ace-icon fa fa-check"></i>
+                    No Messages!
+                </strong>
+                No Messages
+            </p>
+        </div>
+    }
+    <div id="div-new-comment">
+        @Html.Partial("_CommentCreate", new NestedCommentsWithExtensionHtmlHelper.ViewModel.CommentViewModel() { })
+    </div>
+</div>
